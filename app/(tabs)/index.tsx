@@ -222,7 +222,7 @@ const TaskMap = () => {
                 <Text style={styles.locationButton}>📍</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => deleteTask(item.id)}>
-                <Text style={styles.deleteButton}>✕</Text>
+                <Text style={styles.deleteButton}>❌</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -297,6 +297,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    width: 50,
   },
   addButtonText: {
     color: '#fff',
@@ -337,9 +338,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   deleteButton: {
-    color: '#ff4444',
     fontSize: 16,
-    fontWeight: 'bold',
   },
   mapContainer: {
     flex: 1,
