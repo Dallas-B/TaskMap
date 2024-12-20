@@ -114,38 +114,32 @@ const MapPage = () => {
 
   return (
     <>
-      <Modal visible={mapVisible} animationType="slide">
-        <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            onPress={handleLocationSelect}
-            initialRegion={{
-              latitude: userLocation?.latitude || 37.78825,
-              longitude: userLocation?.longitude || -122.4324,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-          >
-            {userLocation && (
-              <Marker
-                coordinate={userLocation}
-                pinColor="blue"
-                title="Your Location"
-              />
-            )}
-            {selectedLocation && <Marker coordinate={selectedLocation} />}
-          </MapView>
-          <View style={styles.mapActions}>
-            <TouchableOpacity style={styles.saveButton} onPress={openFavoriteModal}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => setMapVisible(false)}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          onPress={handleLocationSelect}
+          initialRegion={{
+            latitude: userLocation?.latitude || 37.78825,
+            longitude: userLocation?.longitude || -122.4324,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        >
+          {userLocation && (
+            <Marker
+              coordinate={userLocation}
+              pinColor="blue"
+              title="Your Location"
+            />
+          )}
+          {selectedLocation && <Marker coordinate={selectedLocation} />}
+        </MapView>
+        <View style={styles.mapActions}>
+          <TouchableOpacity style={styles.saveButton} onPress={openFavoriteModal}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-
+      </View>
       {/* Modal for saving favorite location */}
       <Modal visible={favoriteModalVisible} animationType="slide" transparent>
         <View style={styles.favoriteModal}>

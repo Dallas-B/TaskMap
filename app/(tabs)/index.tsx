@@ -164,6 +164,7 @@ const TaskMap = () => {
         item.id === id ? { ...item, completed: !item.completed } : item
       )
     );
+    deleteTask(id);
   };
 
   const deleteTask = (id: string) => {
@@ -347,9 +348,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mapActions: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    padding: 10,
   },
   saveButton: {
     backgroundColor: '#007BFF',
