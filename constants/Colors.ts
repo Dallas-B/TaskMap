@@ -5,6 +5,11 @@
 
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
+const Jet = "#363635";
+const Ebony = "#595A4A";
+const LightBlue = "#B8D8D8";
+const Beige = "#EEF5DB";
+const Puce = "#B4869F";
 
 export const Colors = {
   light: {
@@ -23,4 +28,11 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+  standard: {
+    Jet: Jet,
+    Ebony: Ebony,
+    LightBlue: LightBlue,
+    Beige: Beige,
+    Puce: Puce,
+  }
 };

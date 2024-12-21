@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
+import { Colors } from '@/constants/Colors';
 
 // Set up notification handling
 Notifications.setNotificationHandler({
@@ -29,6 +30,7 @@ const TaskMap = () => {
   const [taskBeingEdited, setTaskBeingEdited] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locMenuVisible, setLocMenuVisible] = useState(false);
 
 
   useEffect(() => {
@@ -125,8 +127,16 @@ const TaskMap = () => {
   // Open the map and fetch the user's location
   const openMap = async (taskId: string) => {
     setTaskBeingEdited(taskId);
-    await getCurrentLocation(); // Fetch user's location
     setMapVisible(true);
+  };
+
+  // Open the location menu
+  const openLocMenu = async (taskId: string) => {
+    // open modal with selection for favorite locations
+    await getCurrentLocation(); // Fetch user's location
+    setSelectedLocation(userLocation);
+    setLocMenuVisible(true);
+    setTaskBeingEdited(taskId);
   };
 
   // Handle map location selection
@@ -146,6 +156,7 @@ const TaskMap = () => {
         )
       );
     }
+    setLocMenuVisible(false);
     setMapVisible(false);
     setSelectedLocation(null);
     setTaskBeingEdited(null);
@@ -219,16 +230,32 @@ const TaskMap = () => {
               )}
             </TouchableOpacity>
             <View style={styles.taskActions}>
-              <TouchableOpacity onPress={() => openMap(item.id)}>
-                <Text style={styles.locationButton}>📍</Text>
+              <TouchableOpacity onPress={() => openLocMenu(item.id)}>
+                <Image source={require('@/assets/images/compass-alt.png')} style={styles.locationButton} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => deleteTask(item.id)}>
-                <Text style={styles.deleteButton}>❌</Text>
+                <Image source={require('@/assets/images/cross.png')} style={styles.deleteButton} />
               </TouchableOpacity>
             </View>
           </View>
         )}
       />
+
+      {/* Selection Modal */}
+      <Modal visible={locMenuVisible} transparent={true} animationType="slide">
+        <View style={styles.locMenu}>
+          <Text style={styles.locMenuTitle}>Select Location</Text>
+          <TouchableOpacity style={styles.locMenuButton} onPress={() => { setSelectedLocation(userLocation); saveLocation(); }}>
+            <Text style={styles.locMenuText}>Current Location</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.locMenuButton} onPress={() => openMap(taskBeingEdited || '')}>
+            <Text style={styles.locMenuText}>Open Map</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.closeButton} onPress={() => setLocMenuVisible(false)}>
+            <Text style={styles.saveButtonText}>❌</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
 
       {/* Map Modal */}
       <Modal visible={mapVisible} animationType="slide">
@@ -272,9 +299,45 @@ const TaskMap = () => {
 };
 
 const styles = StyleSheet.create({
+  locMenu: {
+    marginTop: 200,
+    margin: 40,
+    backgroundColor: Colors.standard.Beige,
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  locMenuTitle: {
+    fontSize: 20,
+    marginBottom: 20,
+    color: Colors.standard.Jet,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+  },
+  locMenuButton: {
+    backgroundColor: Colors.standard.LightBlue,
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  locMenuText: {
+    color: Colors.standard.Jet,
+    fontSize: 16,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.standard.Jet,
     padding: 20,
   },
   inputContainer: {
@@ -287,21 +350,21 @@ const styles = StyleSheet.create({
     flex: 1,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 30,
     padding: 10,
+    marginRight: 10,
     backgroundColor: '#fff',
   },
   addButton: {
-    marginLeft: 10,
-    backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20, // Half of the width and height
     justifyContent: 'center',
     alignItems: 'center',
-    width: 50,
+    backgroundColor: Colors.standard.LightBlue,
   },
   addButtonText: {
-    color: '#fff',
+    color: Colors.standard.Jet,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -310,15 +373,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.standard.Beige,
     borderRadius: 5,
     marginBottom: 10,
-    borderWidth: 1,
     borderColor: '#eee',
   },
   taskText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#333',
+    fontWeight: 'bold',
   },
   taskCompleted: {
     textDecorationLine: 'line-through',
@@ -330,8 +393,9 @@ const styles = StyleSheet.create({
   },
   locationButton: {
     color: '#007BFF',
-    fontSize: 18,
-    marginRight: 10,
+    marginRight: 15,
+    width: 25,
+    height: 25,
   },
   locationText: {
     fontSize: 14,
@@ -339,7 +403,9 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   deleteButton: {
-    fontSize: 16,
+    marginRight: 5,
+    width: 20,
+    height: 20,
   },
   mapContainer: {
     flex: 1,

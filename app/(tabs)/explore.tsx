@@ -11,9 +11,9 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Colors } from '@/constants/Colors';
 
 const MapPage = () => {
-  const [mapVisible, setMapVisible] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [favoriteModalVisible, setFavoriteModalVisible] = useState(false);
@@ -146,7 +146,7 @@ const MapPage = () => {
           <Text style={styles.modalTitle}>Save Location</Text>
           <TextInput
             style={styles.modalInput}
-            placeholder="Enter a name for the location"
+            placeholder="Enter name"
             value={favoriteName}
             onChangeText={setFavoriteName}
           />
@@ -205,15 +205,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   favoriteModal: {
-    flex: 1,
-    justifyContent: 'center',
+    marginTop: 200,
+    margin: 40,
+    backgroundColor: Colors.standard.Beige,
+    borderRadius: 20,
+    padding: 35,
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
   },
   modalTitle: {
     fontSize: 20,
     marginBottom: 20,
-    color: '#fff',
+    color: Colors.standard.Jet,
   },
   modalInput: {
     backgroundColor: '#fff',
