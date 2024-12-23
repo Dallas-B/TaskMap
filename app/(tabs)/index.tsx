@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
+import { Switch, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
@@ -16,7 +16,7 @@ Notifications.setNotificationHandler({
 
 type Task = {
   id: string;
-  text: string;
+  name: string;
   completed: boolean;
   location: { latitude: number; longitude: number } | null;
   notified: boolean
@@ -31,6 +31,10 @@ const TaskMap = () => {
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locMenuVisible, setLocMenuVisible] = useState(false);
+  const [descMenuVisible, setDescMenuVisible] = useState(false);
+  const [persistNotify, setPersistNotify] = useState(false);
+
+  const toggleSwitch = () => setPersistNotify(previousState => !previousState);
 
 
   useEffect(() => {
@@ -93,7 +97,7 @@ const TaskMap = () => {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'You’re close to a task location!',
-        body: `Task: ${task.text}`,
+        body: `Task: ${task.name}`,
         data: { taskId: task.id },
       },
       trigger: null, // Immediate notification
@@ -164,7 +168,7 @@ const TaskMap = () => {
 
   const addTask = () => {
     if (task.trim()) {
-      setTasks([...tasks, { id: Date.now().toString(), text: task, completed: false, location: null, notified: false }]);
+      setTasks([...tasks, { id: Date.now().toString(), name: task, completed: false, location: null, notified: false }]);
       setTask('');
     }
   };
@@ -189,6 +193,27 @@ const TaskMap = () => {
     }); 
   }
 
+  const openDescMenu = (id: string) => {
+    setDescMenuVisible(true);
+    setTaskBeingEdited(id);
+  };
+
+  const getTaskLocation = () => {
+    const task = tasks.find((item) => item.name === taskBeingEdited);
+    if (task && task.location) {
+      return `${task.location.latitude.toFixed(5)}, ${task.location.longitude.toFixed(5)}`;
+    }
+    return 'No location set';
+  };
+
+  const togglePersistantNotification = () => {
+    
+  };
+
+  const saveTask = () => {
+    
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -211,14 +236,14 @@ const TaskMap = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.taskContainer}>
-            <TouchableOpacity onPress={() => toggleTaskCompletion(item.id)}>
+            <TouchableOpacity onPress={() => openDescMenu(item.name)}>
               <Text
                 style={[
                   styles.taskText,
                   item.completed && styles.taskCompleted,
                 ]}
               >
-                {item.text}
+                {item.name}
               </Text>
               {item.location && (
                 <Text style={[
@@ -240,6 +265,41 @@ const TaskMap = () => {
           </View>
         )}
       />
+
+      {/* Description Modal */}
+      <Modal visible={descMenuVisible} animationType="slide">
+          <TouchableOpacity style={styles.menuNav} onPress={() => setDescMenuVisible(false)}>
+            <Image source={require('@/assets/images/angle-left.png')} style={styles.deleteButton} />
+          </TouchableOpacity>
+        <View style={styles.descMenu}>
+          {/* 
+          title (task id) 
+          editable description
+          location
+          toggle for persistant notification
+          ...other settings
+           */}
+          <Text style={styles.locMenuTitle}>{taskBeingEdited}</Text>
+          <TouchableOpacity onPress={() => {setLocMenuVisible(true);}}>
+            <Text style={styles.locMenuText}>Location: {getTaskLocation()}</Text>
+          </TouchableOpacity>
+          <TextInput
+            style={styles.descInput}
+            placeholder="Edit description"
+          />
+          <Switch
+            trackColor={{ false: "#767577", true: "#33ff7d" }}
+            thumbColor={persistNotify ? "#f4f3f4" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={persistNotify}
+          />
+          <Text>Persistent Notification: {persistNotify ? 'On' : 'Off'}</Text>
+          <TouchableOpacity style={styles.saveButton} onPress={saveTask}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
 
       {/* Selection Modal */}
       <Modal visible={locMenuVisible} transparent={true} animationType="slide">
@@ -299,6 +359,27 @@ const TaskMap = () => {
 };
 
 const styles = StyleSheet.create({
+  menuNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+    marginTop: 10,
+  },
+  descMenu: {
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    backgroundColor: Colors.standard.Beige,
+  },
+  descInput: {
+    width: '90%',
+    height: '50%',
+    borderColor: Colors.standard.Jet,
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: Colors.standard.Beige,
+    wordWrap: 'break-word',
+  },
   locMenu: {
     marginTop: 200,
     margin: 40,
