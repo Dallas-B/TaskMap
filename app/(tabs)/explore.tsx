@@ -118,6 +118,26 @@ const MapPage = () => {
     setFavoritesListVisible(true);
   };
 
+  const handleDeleteFavorite = (index: number) => {
+    Alert.alert(
+      'Delete Favorite',
+      `Are you sure you want to delete "${favoriteLocations[index].name}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            const updatedFavorites = [...favoriteLocations];
+            updatedFavorites.splice(index, 1);
+            setFavoriteLocations(updatedFavorites);
+            Alert.alert('Deleted', `"${favoriteLocations[index].name}" has been removed.`);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <>
       <View style={styles.mapContainer}>
@@ -180,9 +200,17 @@ const MapPage = () => {
           <Text style={styles.modalTitle}>Favorite Locations</Text>
           <ScrollView style={styles.favoriteList}>
             {favoriteLocations.map((favorite, index) => (
-              <Text key={index} style={styles.favoriteItem}>
-                {index + 1}. {favorite.name} - ({favorite.location.latitude.toFixed(4)}, {favorite.location.longitude.toFixed(4)})
-              </Text>
+              <View key={index} style={styles.favoriteItemContainer}>
+                <Text style={styles.favoriteItem}>
+                  {index + 1}. {favorite.name} - ({favorite.location.latitude.toFixed(4)}, {favorite.location.longitude.toFixed(4)})
+                </Text>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeleteFavorite(index)}
+                >
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
             ))}
           </ScrollView>
           <TouchableOpacity
@@ -193,6 +221,7 @@ const MapPage = () => {
           </TouchableOpacity>
         </View>
       </Modal>
+
     </>
   );
 };
@@ -276,7 +305,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     marginBottom: 10,
+    maxWidth: 150,
   },
+  favoriteItemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  deleteButton: {
+    backgroundColor: '#ff4444',
+    padding: 5,
+    borderRadius: 5,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  
 });
 
 export default MapPage;

@@ -528,6 +528,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#333',
     fontWeight: 'bold',
+    maxWidth: 200,
   },
   taskCompleted: {
     textDecorationLine: 'line-through',
