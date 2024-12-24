@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Switch, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
+import { ScrollView, Switch, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { Colors } from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Set up notification handling
 Notifications.setNotificationHandler({
@@ -33,8 +34,27 @@ const TaskMap = () => {
   const [locMenuVisible, setLocMenuVisible] = useState(false);
   const [descMenuVisible, setDescMenuVisible] = useState(false);
   const [persistNotify, setPersistNotify] = useState(false);
-
   const toggleSwitch = () => setPersistNotify(previousState => !previousState);
+  const [favoriteLocations, setFavoriteLocations] = useState<
+    { name: string; location: { latitude: number; longitude: number } }[]
+  >([]);
+  const [favoritesListVisible, setFavoritesListVisible] = useState(false);
+
+  // Load favorite locations from AsyncStorage on startup
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const storedFavorites = await AsyncStorage.getItem('favoriteLocations');
+        if (storedFavorites) {
+          setFavoriteLocations(JSON.parse(storedFavorites));
+        }
+      } catch (error) {
+        console.error('Failed to load favorite locations:', error);
+      }
+    };
+
+    loadFavorites();
+  }, []);
 
 
   useEffect(() => {
@@ -129,8 +149,7 @@ const TaskMap = () => {
   };
 
   // Open the map and fetch the user's location
-  const openMap = async (taskId: string) => {
-    setTaskBeingEdited(taskId);
+  const openMap = async () => {
     setMapVisible(true);
   };
 
@@ -151,19 +170,20 @@ const TaskMap = () => {
 
   // Save the selected location to the task
   const saveLocation = () => {
-    if (taskBeingEdited && selectedLocation) {
-      setTasks(
-        tasks.map((item) =>
-          item.id === taskBeingEdited
-            ? { ...item, location: selectedLocation }
-            : item
-        )
-      );
-    }
+
+    setTasks(
+      tasks.map((item) =>
+        item.id === taskBeingEdited
+          ? { ...item, location: selectedLocation }
+          : item
+      )
+    );
+    
     setLocMenuVisible(false);
-    setMapVisible(false);
+    if(mapVisible){
+      setMapVisible(false);
+    }
     setSelectedLocation(null);
-    setTaskBeingEdited(null);
   };
 
   const addTask = () => {
@@ -212,6 +232,22 @@ const TaskMap = () => {
 
   const saveTask = () => {
     
+  };
+
+  const openFavoriteModal = () => {
+    setFavoritesListVisible(true);
+  };
+
+  const handleFavoriteSelect = (location: { latitude: number; longitude: number }) => {
+    setTasks(
+      tasks.map((item) =>
+        item.id === taskBeingEdited
+          ? { ...item, location: location }
+          : item
+      )
+    );
+    setFavoritesListVisible(false);
+    setLocMenuVisible(false);
   };
 
   return (
@@ -308,11 +344,40 @@ const TaskMap = () => {
           <TouchableOpacity style={styles.locMenuButton} onPress={() => { setSelectedLocation(userLocation); saveLocation(); }}>
             <Text style={styles.locMenuText}>Current Location</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.locMenuButton} onPress={() => openMap(taskBeingEdited || '')}>
+          <TouchableOpacity style={styles.locMenuButton} onPress={() => openFavoriteModal()}>
+            <Text style={styles.locMenuText}>Favorite Locations</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.locMenuButton} onPress={() => openMap()}>
             <Text style={styles.locMenuText}>Open Map</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.closeButton} onPress={() => setLocMenuVisible(false)}>
             <Text style={styles.saveButtonText}>❌</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* Favorite Locations Modal */}
+      <Modal visible={favoritesListVisible} animationType="slide" transparent>
+        <View style={styles.favoriteModal}>
+          <Text style={styles.locMenuTitle}>Favorite Locations</Text>
+          <ScrollView style={styles.favoriteList}>
+            {favoriteLocations.map((favorite, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.favoriteItem}
+                onPress={() => handleFavoriteSelect(favorite.location)}
+              >
+                <Text style={styles.favoriteItemText}>
+                  {index + 1}. {favorite.name} - ({favorite.location.latitude.toFixed(4)}, {favorite.location.longitude.toFixed(4)})
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setFavoritesListVisible(false)}
+          >
+            <Text style={styles.cancelButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -523,6 +588,35 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  favoriteList: {
+    height: '70%',
+    width: '100%',
+    marginTop: 10,
+  },
+  favoriteItem: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 10,
+  },
+  favoriteModal: {
+    margin: 40,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  favoriteItemText: {
+    fontSize: 16,
+    color: '#555',
   },
 });
 

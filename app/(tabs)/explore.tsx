@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   Alert,
+  ScrollView,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -17,6 +18,7 @@ const MapPage = () => {
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [favoriteModalVisible, setFavoriteModalVisible] = useState(false);
+  const [favoritesListVisible, setFavoritesListVisible] = useState(false);
   const [favoriteName, setFavoriteName] = useState('');
   const [favoriteLocations, setFavoriteLocations] = useState<
     { name: string; location: { latitude: number; longitude: number } }[]
@@ -112,6 +114,10 @@ const MapPage = () => {
     setFavoriteModalVisible(false);
   };
 
+  const openFavoritesList = () => {
+    setFavoritesListVisible(true);
+  };
+
   return (
     <>
       <View style={styles.mapContainer}>
@@ -138,8 +144,12 @@ const MapPage = () => {
           <TouchableOpacity style={styles.saveButton} onPress={openFavoriteModal}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.saveButton} onPress={openFavoritesList}>
+            <Text style={styles.saveButtonText}>Favorites</Text>
+          </TouchableOpacity>
         </View>
       </View>
+      
       {/* Modal for saving favorite location */}
       <Modal visible={favoriteModalVisible} animationType="slide" transparent>
         <View style={styles.favoriteModal}>
@@ -163,6 +173,26 @@ const MapPage = () => {
           </View>
         </View>
       </Modal>
+
+      {/* Modal for displaying favorite locations */}
+      <Modal visible={favoritesListVisible} animationType="slide" transparent>
+        <View style={styles.favoriteModal}>
+          <Text style={styles.modalTitle}>Favorite Locations</Text>
+          <ScrollView style={styles.favoriteList}>
+            {favoriteLocations.map((favorite, index) => (
+              <Text key={index} style={styles.favoriteItem}>
+                {index + 1}. {favorite.name} - ({favorite.location.latitude.toFixed(4)}, {favorite.location.longitude.toFixed(4)})
+              </Text>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setFavoritesListVisible(false)}
+          >
+            <Text style={styles.cancelButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </>
   );
 };
@@ -180,7 +210,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     backgroundColor: 'rgba(0, 0, 0, 0)',
     padding: 10,
   },
@@ -198,6 +228,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff4444',
     padding: 10,
     borderRadius: 5,
+    marginTop: 20,
   },
   cancelButtonText: {
     color: '#fff',
@@ -205,9 +236,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   favoriteModal: {
-    marginTop: 200,
     margin: 40,
-    backgroundColor: Colors.standard.Beige,
+    backgroundColor: '#f9f9f9',
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
@@ -223,7 +253,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     marginBottom: 20,
-    color: Colors.standard.Jet,
+    color: '#333',
   },
   modalInput: {
     backgroundColor: '#fff',
@@ -236,6 +266,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '80%',
+  },
+  favoriteList: {
+    height: '70%',
+    width: '100%',
+    marginTop: 10,
+  },
+  favoriteItem: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 10,
   },
 });
 
