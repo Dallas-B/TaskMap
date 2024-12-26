@@ -54,7 +54,7 @@ const TaskMap = () => {
     };
 
     loadFavorites();
-  }, []);
+  }, [favoritesListVisible]);
 
 
   useEffect(() => {
