@@ -199,7 +199,7 @@ const TaskMap = () => {
         item.id === id ? { ...item, completed: !item.completed } : item
       )
     );
-    deleteTask(id);
+    setDescMenuVisible(false);
   };
 
   const deleteTask = (id: string) => {
@@ -276,7 +276,7 @@ const TaskMap = () => {
       </View>
 
       <FlatList
-        data={tasks}
+        data={tasks ? tasks.filter((item) => !item.completed) : tasks}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.taskContainer}>
@@ -307,6 +307,33 @@ const TaskMap = () => {
         )}
       />
 
+      <FlatList
+        data={tasks ? tasks.filter((item) => item.completed) : tasks}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.taskContainer}>
+            <TouchableOpacity onPress={() => openDescMenu(item.name)}>
+              <Text
+                style={[
+                  styles.taskText,
+                  item.completed && styles.taskCompleted,
+                ]}
+              >
+                {item.name}
+              </Text>
+              {item.location && (
+                <Text style={[
+                  styles.locationText,
+                  item.completed && styles.taskCompleted
+                ]}>
+                  Location: {getTaskLocation(item.name)}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+
       {/* Description Modal */}
       <Modal visible={descMenuVisible} animationType="slide">
           <TouchableOpacity style={styles.menuNav} onPress={() => setDescMenuVisible(false)}>
@@ -330,6 +357,9 @@ const TaskMap = () => {
           <Text>Persistent Notification: {persistNotify ? 'On' : 'Off'}</Text>
           <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(getTaskID(taskBeingEdited))}>
             <Text>Delete</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited &&completeTask(getTaskID(taskBeingEdited))}>
+            <Text>Complete</Text>
           </TouchableOpacity>
         </View>
       </Modal>
