@@ -306,18 +306,12 @@ const TaskMap = () => {
       <Modal visible={descMenuVisible} animationType="slide">
           <TouchableOpacity style={styles.menuNav} onPress={() => setDescMenuVisible(false)}>
             <Image source={require('@/assets/images/angle-left.png')} style={styles.deleteButton} />
+            <Text style={styles.backButtonText}>Home</Text>
           </TouchableOpacity>
-        <View style={styles.descMenu}>
-          {/* 
-          title (task id) 
-          editable description
-          location
-          toggle for persistant notification
-          ...other settings
-           */}
-          <Text style={styles.locMenuTitle}>{taskBeingEdited}</Text>
+        <View style={styles.fullScreenMenu}>
+          <Text style={styles.cardMenuTitle}>{taskBeingEdited}</Text>
           <TouchableOpacity onPress={() => {setLocMenuVisible(true);}}>
-            <Text style={styles.locMenuText}>Location: {getTaskLocation()}</Text>
+            <Text style={styles.cardMenuText}>Location: {getTaskLocation()}</Text>
           </TouchableOpacity>
           <TextInput
             style={styles.descInput}
@@ -339,16 +333,16 @@ const TaskMap = () => {
 
       {/* Selection Modal */}
       <Modal visible={locMenuVisible} transparent={true} animationType="slide">
-        <View style={styles.locMenu}>
-          <Text style={styles.locMenuTitle}>Select Location</Text>
-          <TouchableOpacity style={styles.locMenuButton} onPress={() => { setSelectedLocation(userLocation); saveLocation(); }}>
-            <Text style={styles.locMenuText}>Current Location</Text>
+        <View style={styles.cardMenu}>
+          <Text style={styles.cardMenuTitle}>Select Location</Text>
+          <TouchableOpacity style={styles.cardMenuButton} onPress={() => { setSelectedLocation(userLocation); saveLocation(); }}>
+            <Text style={styles.cardMenuText}>Current Location</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.locMenuButton} onPress={() => openFavoriteModal()}>
-            <Text style={styles.locMenuText}>Favorite Locations</Text>
+          <TouchableOpacity style={styles.cardMenuButton} onPress={() => openFavoriteModal()}>
+            <Text style={styles.cardMenuText}>Favorite Locations</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.locMenuButton} onPress={() => openMap()}>
-            <Text style={styles.locMenuText}>Open Map</Text>
+          <TouchableOpacity style={styles.cardMenuButton} onPress={() => openMap()}>
+            <Text style={styles.cardMenuText}>Open Map</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.closeButton} onPress={() => setLocMenuVisible(false)}>
             <Text style={styles.saveButtonText}>❌</Text>
@@ -359,7 +353,7 @@ const TaskMap = () => {
       {/* Favorite Locations Modal */}
       <Modal visible={favoritesListVisible} animationType="slide" transparent>
         <View style={styles.favoriteModal}>
-          <Text style={styles.locMenuTitle}>Favorite Locations</Text>
+          <Text style={styles.cardMenuTitle}>Favorite Locations</Text>
           <ScrollView style={styles.favoriteList}>
             {favoriteLocations.map((favorite, index) => (
               <TouchableOpacity
@@ -428,9 +422,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 20,
-    marginTop: 10,
+    backgroundColor: Colors.standard.Beige,
   },
-  descMenu: {
+  fullScreenMenu: {
     flex: 1, 
     alignItems: 'center', 
     justifyContent: 'center',
@@ -445,7 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.standard.Beige,
     wordWrap: 'break-word',
   },
-  locMenu: {
+  cardMenu: {
     marginTop: 200,
     margin: 40,
     backgroundColor: Colors.standard.Beige,
@@ -461,7 +455,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
-  locMenuTitle: {
+  cardMenuTitle: {
     fontSize: 20,
     marginBottom: 20,
     color: Colors.standard.Jet,
@@ -471,13 +465,13 @@ const styles = StyleSheet.create({
     top: 10,
     left: 10,
   },
-  locMenuButton: {
+  cardMenuButton: {
     backgroundColor: Colors.standard.LightBlue,
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
   },
-  locMenuText: {
+  cardMenuText: {
     color: Colors.standard.Jet,
     fontSize: 16,
   },
@@ -613,6 +607,12 @@ const styles = StyleSheet.create({
   favoriteItemText: {
     fontSize: 16,
     color: '#555',
+  },
+  backButtonText: {
+    color: Colors.standard.Jet,
+    marginRight: 325,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
