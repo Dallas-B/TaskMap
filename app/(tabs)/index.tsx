@@ -193,7 +193,7 @@ const TaskMap = () => {
     }
   };
 
-  const toggleTaskCompletion = (id: string) => {
+  const completeTask = (id: string) => {
     setTasks(
       tasks.map((item) =>
         item.id === id ? { ...item, completed: !item.completed } : item
@@ -262,8 +262,8 @@ const TaskMap = () => {
           value={task}
           onChangeText={setTask}
         />
-        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-          <Text style={styles.addButtonText}>+</Text>
+        <TouchableOpacity style={styles.addTaskButton} onPress={addTask}>
+          <Image source={require('@/assets/images/add.png')} style={styles.addTaskImage}/>
         </TouchableOpacity>
       </View>
 
@@ -501,18 +501,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
     backgroundColor: '#fff',
   },
-  addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20, // Half of the width and height
+  addTaskButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.standard.LightBlue,
   },
-  addButtonText: {
-    color: Colors.standard.Jet,
-    fontSize: 18,
-    fontWeight: 'bold',
+  addTaskImage: {
+    width: 50,
+    height: 50,
   },
   taskContainer: {
     flexDirection: 'row',
