@@ -203,6 +203,7 @@ const TaskMap = () => {
   };
 
   const deleteTask = (id: string) => {
+    setDescMenuVisible(false);
     setTasks(tasks.filter((item) => item.id !== id));
   };
 
@@ -218,19 +219,18 @@ const TaskMap = () => {
     setTaskBeingEdited(id);
   };
 
-  const getTaskLocation = () => {
-    const task = tasks.find((item) => item.name === taskBeingEdited);
+  const getTaskLocation = (taskName: string) => {
+    const task = tasks.find((item) => item.name === taskName);
     if (task && task.location) {
+      if (favoriteLocations.find((item) => item.location.latitude === task.location?.latitude && item.location.longitude === task.location?.longitude)) {
+        return favoriteLocations.find((item) => item.location.latitude === task.location?.latitude && item.location.longitude === task.location?.longitude)?.name;
+      }
       return `${task.location.latitude.toFixed(5)}, ${task.location.longitude.toFixed(5)}`;
     }
     return 'No location set';
   };
 
   const togglePersistantNotification = () => {
-    
-  };
-
-  const saveTask = () => {
     
   };
 
@@ -248,6 +248,14 @@ const TaskMap = () => {
     );
     setFavoritesListVisible(false);
     setLocMenuVisible(false);
+  };
+
+  const getTaskID = (name: string) => {
+    const task = tasks.find((item) => item.name === name);
+    if (task) {
+      return task.id;
+    }
+    return '';
   };
 
   return (
@@ -286,16 +294,13 @@ const TaskMap = () => {
                   styles.locationText,
                   item.completed && styles.taskCompleted
                 ]}>
-                  Location: {item.location.latitude.toFixed(5)}, {item.location.longitude.toFixed(5)}
+                  Location: {getTaskLocation(item.name)}
                 </Text>
               )}
             </TouchableOpacity>
             <View style={styles.taskActions}>
               <TouchableOpacity onPress={() => openLocMenu(item.id)}>
                 <Image source={require('@/assets/images/compass-alt.png')} style={styles.locationButton} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteTask(item.id)}>
-                <Image source={require('@/assets/images/cross.png')} style={styles.deleteButton} />
               </TouchableOpacity>
             </View>
           </View>
@@ -305,17 +310,15 @@ const TaskMap = () => {
       {/* Description Modal */}
       <Modal visible={descMenuVisible} animationType="slide">
           <TouchableOpacity style={styles.menuNav} onPress={() => setDescMenuVisible(false)}>
-            <Image source={require('@/assets/images/angle-left.png')} style={styles.deleteButton} />
+            <Image source={require('@/assets/images/angle-left.png')} style={styles.locationButton} />
             <Text style={styles.backButtonText}>Home</Text>
           </TouchableOpacity>
         <View style={styles.fullScreenMenu}>
           <Text style={styles.cardMenuTitle}>{taskBeingEdited}</Text>
-          <TouchableOpacity onPress={() => {setLocMenuVisible(true);}}>
-            <Text style={styles.cardMenuText}>Location: {getTaskLocation()}</Text>
-          </TouchableOpacity>
+          <Text style={styles.cardMenuText}>Location: {getTaskLocation(taskBeingEdited || '')}</Text>
           <TextInput
             style={styles.descInput}
-            placeholder="Edit description"
+            placeholder="Add description"
           />
           <Switch
             trackColor={{ false: "#767577", true: "#33ff7d" }}
@@ -325,13 +328,13 @@ const TaskMap = () => {
             value={persistNotify}
           />
           <Text>Persistent Notification: {persistNotify ? 'On' : 'Off'}</Text>
-          <TouchableOpacity style={styles.saveButton} onPress={saveTask}>
-            <Text style={styles.saveButtonText}>Save</Text>
+          <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(getTaskID(taskBeingEdited))}>
+            <Text>Delete</Text>
           </TouchableOpacity>
         </View>
       </Modal>
 
-      {/* Selection Modal */}
+      {/* Location Selection Modal */}
       <Modal visible={locMenuVisible} transparent={true} animationType="slide">
         <View style={styles.cardMenu}>
           <Text style={styles.cardMenuTitle}>Select Location</Text>
@@ -539,9 +542,10 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   deleteButton: {
-    marginRight: 5,
-    width: 20,
-    height: 20,
+    backgroundColor: '#ff4444',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
   },
   mapContainer: {
     flex: 1,
