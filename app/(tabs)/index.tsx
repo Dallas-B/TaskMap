@@ -85,6 +85,37 @@ const TaskMap = () => {
       };
     }, []);
 
+  // Load tasks from async storage
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const storedTasks = await AsyncStorage.getItem('Tasks');
+        if (storedTasks) {
+          setTasks(JSON.parse(storedTasks));
+        }
+      } catch (error) {
+        console.error('Failed to load tasks:', error);
+      }
+    };
+
+    loadTasks();
+  }, []);
+
+  // Save tasks to async storage
+  useEffect(() => {
+    const saveTasks = async () => {
+      try {
+        await AsyncStorage.setItem(
+          'Tasks',
+          JSON.stringify(tasks)
+        );
+      } catch (error) {
+        console.error('Failed to save tasks:', error);
+      }
+    };
+
+    saveTasks();
+  }, [tasks]);
 
 
   // Get user's current location
