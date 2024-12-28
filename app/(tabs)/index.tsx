@@ -274,7 +274,7 @@ const TaskMap = () => {
           <Image source={require('@/assets/images/add.png')} style={styles.addTaskImage}/>
         </TouchableOpacity>
       </View>
-
+      <Text style={styles.homeHeader}>To Do Tasks</Text>
       <FlatList
         data={tasks ? tasks.filter((item) => !item.completed) : tasks}
         keyExtractor={(item) => item.id}
@@ -306,7 +306,7 @@ const TaskMap = () => {
           </View>
         )}
       />
-
+      <Text style={styles.homeHeader}>Completed Tasks</Text>
       <FlatList
         data={tasks ? tasks.filter((item) => item.completed) : tasks}
         keyExtractor={(item) => item.id}
@@ -647,6 +647,12 @@ const styles = StyleSheet.create({
     marginRight: 325,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  homeHeader: {
+    fontSize: 20,
+    color: Colors.standard.Beige,
+    fontWeight: 'bold',
+    marginTop: 20,
   },
 });
 
