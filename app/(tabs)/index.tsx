@@ -250,6 +250,10 @@ const TaskMap = () => {
     setLocMenuVisible(false);
   };
 
+  const clearCompletedTasks = () => {
+    setTasks(tasks.filter((item) => !item.completed));
+  };
+
   const getTaskID = (name: string) => {
     const task = tasks.find((item) => item.name === name);
     if (task) {
@@ -306,7 +310,12 @@ const TaskMap = () => {
           </View>
         )}
       />
-      <Text style={styles.homeHeader}>Completed Tasks</Text>
+      <View style={styles.homeRowContainer}>
+        <Text style={styles.homeHeader}>Completed Tasks</Text>
+        <TouchableOpacity style={styles.addTaskButton} onPress={clearCompletedTasks}>
+          <Text style={styles.clearButtonText}>Clear</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={tasks ? tasks.filter((item) => item.completed) : tasks}
         keyExtractor={(item) => item.id}
@@ -358,7 +367,7 @@ const TaskMap = () => {
           <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(getTaskID(taskBeingEdited))}>
             <Text>Delete</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited &&completeTask(getTaskID(taskBeingEdited))}>
+          <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(getTaskID(taskBeingEdited))}>
             <Text>Complete</Text>
           </TouchableOpacity>
         </View>
@@ -577,6 +586,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 10,
   },
+  completeButton: {
+    backgroundColor: Colors.standard.LightBlue,
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
   mapContainer: {
     flex: 1,
   },
@@ -653,6 +668,17 @@ const styles = StyleSheet.create({
     color: Colors.standard.Beige,
     fontWeight: 'bold',
     marginTop: 20,
+    marginBottom: 10,
+  },
+  homeRowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  clearButtonText: {
+    color: Colors.standard.LightBlue,
+    marginRight: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
