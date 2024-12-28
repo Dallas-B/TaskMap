@@ -285,12 +285,20 @@ const TaskMap = () => {
     setTasks(tasks.filter((item) => !item.completed));
   };
 
-  const getTaskID = (name: string) => {
-    const task = tasks.find((item) => item.name === name);
+  const getTaskName = (id: string) => {
+    const task = tasks.find((item) => item.id === id);
     if (task) {
-      return task.id;
+      return task.name;
     }
     return '';
+  };
+
+  const getTaskCompelted = (id: string) => {
+    const task = tasks.find((item) => item.id === id);
+    if (task) {
+      return task.completed;
+    }
+    return false;
   };
 
   return (
@@ -315,7 +323,7 @@ const TaskMap = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.taskContainer}>
-            <TouchableOpacity onPress={() => openDescMenu(item.name)}>
+            <TouchableOpacity onPress={() => openDescMenu(item.id)}>
               <Text
                 style={[
                   styles.taskText,
@@ -352,7 +360,7 @@ const TaskMap = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.taskContainer}>
-            <TouchableOpacity onPress={() => openDescMenu(item.name)}>
+            <TouchableOpacity onPress={() => openDescMenu(item.id)}>
               <Text
                 style={[
                   styles.taskText,
@@ -381,7 +389,7 @@ const TaskMap = () => {
             <Text style={styles.backButtonText}>Home</Text>
           </TouchableOpacity>
         <View style={styles.fullScreenMenu}>
-          <Text style={styles.cardMenuTitle}>{taskBeingEdited}</Text>
+          <Text style={styles.cardMenuTitle}>{taskBeingEdited && getTaskName(taskBeingEdited)}</Text>
           <Text style={styles.cardMenuText}>Location: {getTaskLocation(taskBeingEdited || '')}</Text>
           <TextInput
             style={styles.descInput}
@@ -395,11 +403,11 @@ const TaskMap = () => {
             value={persistNotify}
           />
           <Text>Persistent Notification: {persistNotify ? 'On' : 'Off'}</Text>
-          <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(getTaskID(taskBeingEdited))}>
+          <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(taskBeingEdited)}>
             <Text>Delete</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(getTaskID(taskBeingEdited))}>
-            <Text>Complete</Text>
+          <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(taskBeingEdited)}>
+            <Text>{taskBeingEdited && getTaskCompelted(taskBeingEdited) ? 'Reset' : 'Complete'}</Text>
           </TouchableOpacity>
         </View>
       </Modal>
