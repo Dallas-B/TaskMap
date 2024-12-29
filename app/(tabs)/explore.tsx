@@ -57,33 +57,20 @@ const MapPage = () => {
   }, [favoriteLocations]);
 
   useEffect(() => {
-    let locationSubscription: { remove: any };
-
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
-      }
-
-      locationSubscription = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 1000,
-          distanceInterval: 0.5,
-        },
-        (loc) => {
-          setUserLocation(loc.coords);
+      (async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.error('Permission to access location was denied');
+          return;
         }
-      );
-    })();
-
-    return () => {
-      if (locationSubscription) {
-        locationSubscription.remove();
-      }
-    };
-  }, []);
+  
+        let location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+        })();
+    }, []);
 
   const handleLocationSelect = (e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => {
     const coordinate = e.nativeEvent.coordinate;
@@ -144,9 +131,9 @@ const MapPage = () => {
         <MapView
           style={styles.map}
           onPress={handleLocationSelect}
-          initialRegion={{
-            latitude: userLocation?.latitude || 37.78825,
-            longitude: userLocation?.longitude || -122.4324,
+          region={{
+            latitude: userLocation?.latitude ?? 37.78825,
+            longitude: userLocation?.longitude ?? -122.4324,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}

@@ -35,8 +35,6 @@ const TaskMapPage = () => {
   }, [tasks]);
 
   useEffect(() => {
-    let locationSubscription: { remove: any };
-
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -44,35 +42,21 @@ const TaskMapPage = () => {
         return;
       }
 
-      locationSubscription = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 1000,
-          distanceInterval: 0.5,
-        },
-        (loc) => {
-          setUserLocation({
-            latitude: loc.coords.latitude,
-            longitude: loc.coords.longitude,
-          });
-        }
-      );
-    })();
-
-    return () => {
-      if (locationSubscription) {
-        locationSubscription.remove();
-      }
-    };
+      let location = await Location.getCurrentPositionAsync({});
+      setUserLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      })();
   }, []);
 
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: userLocation?.latitude || 37.78825,
-          longitude: userLocation?.longitude || -122.4324,
+        region={{
+          latitude: userLocation?.latitude ?? 37.78825,
+          longitude: userLocation?.longitude ?? -122.4324,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
