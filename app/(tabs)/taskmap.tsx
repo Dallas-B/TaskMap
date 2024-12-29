@@ -10,6 +10,7 @@ type Task = {
   name: string;
   completed: boolean;
   location: { latitude: number; longitude: number } | null;
+  address: string | null;
   notified: boolean;
   description: string | null;
 };

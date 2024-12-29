@@ -203,24 +203,14 @@ const TaskMap = () => {
   // Save the selected location to the task
   const saveLocation = () => {
 
-    setTasks(
-      tasks.map((item) =>
-        item.id === taskBeingEdited
-          ? { ...item, location: selectedLocation }
-          : item
-      )
-    );
-
-    // Save address value to the task
     if(selectedLocation){
       (async () => {
         try {
           const address = await Location.reverseGeocodeAsync(selectedLocation);
-          console.debug('Address:', address[0].formattedAddress);
           setTasks(
             tasks.map((item) =>
               item.id === taskBeingEdited
-                ? { ...item, address: address[0].formattedAddress }
+                ? { ...item, location: selectedLocation, address: address[0].formattedAddress }
                 : item
             )
           );
