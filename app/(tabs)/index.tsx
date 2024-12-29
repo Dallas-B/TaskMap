@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Switch, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image, Keyboard } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
@@ -38,6 +38,7 @@ const TaskMap = () => {
     { name: string; location: { latitude: number; longitude: number } }[]
   >([]);
   const [favoritesListVisible, setFavoritesListVisible] = useState(false);
+  const [showCheckMark, setShowCheckMark] = useState(false);
 
   // Load favorite locations from AsyncStorage on startup
   useEffect(() => {
@@ -307,6 +308,13 @@ const TaskMap = () => {
     );
   };
 
+  const saveDescription = () => {
+    // Save the description logic here
+    setShowCheckMark(true);
+    setTimeout(() => setShowCheckMark(false), 2000); // Hide the check mark after 2 seconds
+    Keyboard.dismiss();
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -404,12 +412,18 @@ const TaskMap = () => {
             onChangeText={setDesc}
             multiline
           />
+          {showCheckMark && (
+            <Image source={require('@/assets/images/check-mark.png')} style={styles.checkMark} />
+          )}
           <View style={styles.descActions}>
             <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(taskBeingEdited)}>
               <Text>Delete</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(taskBeingEdited)}>
               <Text>{taskBeingEdited && getTaskCompelted(taskBeingEdited) ? 'Undo' : 'Complete'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.completeButton} onPress={(saveDescription)}>
+                <Text>Save</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -634,7 +648,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
-    marginLeft: 100,
+    marginLeft: 50,
   },
   mapContainer: {
     flex: 1,
@@ -654,7 +668,7 @@ const styles = StyleSheet.create({
   },
   descActions: {
     flexDirection: 'row',
-    marginTop: 20,
+    margin: 20,
   },
   saveButton: {
     backgroundColor: '#007BFF',
@@ -727,6 +741,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  checkMark: {
+    width: 20,
+    height: 20,
+    marginLeft: 10,
   },
 });
 
