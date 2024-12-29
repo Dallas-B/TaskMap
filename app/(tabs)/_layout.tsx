@@ -38,6 +38,13 @@ export default function TabLayout() {
           tabBarIcon: () => <Image source={require('@/assets/images/earth-americas.png')} style={styles.navButton} />,
         }}
       />
+      <Tabs.Screen
+        name="taskmap"
+        options={{
+          title: 'TaskMap',
+          tabBarIcon: () => <Image source={require('@/assets/images/marker.png')} style={styles.navButton} />,
+        }}
+      />
     </Tabs>
   );
 }
