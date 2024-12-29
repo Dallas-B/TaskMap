@@ -347,7 +347,7 @@ const TaskMap = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.taskContainer}>
-            <TouchableOpacity onPress={() => openDescMenu(item.id)}>
+            <TouchableOpacity style={styles.openDescButton} onPress={() => openDescMenu(item.id)}>
               <Text
                 style={[
                   styles.taskText,
@@ -758,6 +758,9 @@ const styles = StyleSheet.create({
     height: 20,
     marginLeft: 10,
   },
+  openDescButton: {
+    width: '80%'
+  }
 });
 
 export default TaskMap;
