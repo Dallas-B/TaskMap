@@ -20,7 +20,8 @@ type Task = {
   name: string;
   completed: boolean;
   location: { latitude: number; longitude: number } | null;
-  notified: boolean
+  notified: boolean;
+  description: string | null;
 };
 
 
@@ -219,7 +220,7 @@ const TaskMap = () => {
 
   const addTask = () => {
     if (task.trim()) {
-      setTasks([...tasks, { id: Date.now().toString(), name: task, completed: false, location: null, notified: false }]);
+      setTasks([...tasks, { id: Date.now().toString(), name: task, completed: false, location: null, notified: false, description: null }]);
       setTask('');
     }
   };
@@ -250,8 +251,8 @@ const TaskMap = () => {
     setTaskBeingEdited(id);
   };
 
-  const getTaskLocation = (taskName: string) => {
-    const task = tasks.find((item) => item.name === taskName);
+  const getTaskLocation = (id: string) => {
+    const task = tasks.find((item) => item.id === id);
     if (task && task.location) {
       if (favoriteLocations.find((item) => item.location.latitude === task.location?.latitude && item.location.longitude === task.location?.longitude)) {
         return favoriteLocations.find((item) => item.location.latitude === task.location?.latitude && item.location.longitude === task.location?.longitude)?.name;
@@ -301,6 +302,16 @@ const TaskMap = () => {
     return false;
   };
 
+  const setDesc = (desc: string) => {
+    setTasks(
+      tasks.map((item) =>
+        item.id === taskBeingEdited
+          ? { ...item, description: desc }
+          : item
+      )
+    );
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -337,7 +348,7 @@ const TaskMap = () => {
                   styles.locationText,
                   item.completed && styles.taskCompleted
                 ]}>
-                  Location: {getTaskLocation(item.name)}
+                  Location: {getTaskLocation(item.id)}
                 </Text>
               )}
             </TouchableOpacity>
@@ -374,7 +385,7 @@ const TaskMap = () => {
                   styles.locationText,
                   item.completed && styles.taskCompleted
                 ]}>
-                  Location: {getTaskLocation(item.name)}
+                  Location: {getTaskLocation(item.id)}
                 </Text>
               )}
             </TouchableOpacity>
@@ -394,6 +405,9 @@ const TaskMap = () => {
           <TextInput
             style={styles.descInput}
             placeholder="Add description"
+            value={taskBeingEdited && tasks.find((item) => item.id === taskBeingEdited)?.description || ''}
+            onChangeText={setDesc}
+            multiline
           />
           <Switch
             trackColor={{ false: "#767577", true: "#33ff7d" }}
@@ -513,7 +527,8 @@ const styles = StyleSheet.create({
   },
   descInput: {
     width: '90%',
-    height: '50%',
+    height: 'auto',
+    maxHeight: 500,
     borderColor: Colors.standard.Jet,
     borderWidth: 1,
     borderRadius: 10,
