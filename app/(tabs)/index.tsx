@@ -34,8 +34,6 @@ const TaskMap = () => {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locMenuVisible, setLocMenuVisible] = useState(false);
   const [descMenuVisible, setDescMenuVisible] = useState(false);
-  const [persistNotify, setPersistNotify] = useState(false);
-  const toggleSwitch = () => setPersistNotify(previousState => !previousState);
   const [favoriteLocations, setFavoriteLocations] = useState<
     { name: string; location: { latitude: number; longitude: number } }[]
   >([]);
@@ -220,7 +218,8 @@ const TaskMap = () => {
 
   const addTask = () => {
     if (task.trim()) {
-      setTasks([...tasks, { id: Date.now().toString(), name: task, completed: false, location: null, notified: false, description: null }]);
+      setTasks([...tasks, { id: Date.now().toString(), name: task, completed: false, location: null, 
+                            notified: false, description: null }]);
       setTask('');
     }
   };
@@ -260,10 +259,6 @@ const TaskMap = () => {
       return `${task.location.latitude.toFixed(5)}, ${task.location.longitude.toFixed(5)}`;
     }
     return 'No location set';
-  };
-
-  const togglePersistantNotification = () => {
-    
   };
 
   const openFavoriteModal = () => {
@@ -409,20 +404,14 @@ const TaskMap = () => {
             onChangeText={setDesc}
             multiline
           />
-          <Switch
-            trackColor={{ false: "#767577", true: "#33ff7d" }}
-            thumbColor={persistNotify ? "#f4f3f4" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSwitch}
-            value={persistNotify}
-          />
-          <Text>Persistent Notification: {persistNotify ? 'On' : 'Off'}</Text>
-          <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(taskBeingEdited)}>
-            <Text>Delete</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(taskBeingEdited)}>
-            <Text>{taskBeingEdited && getTaskCompelted(taskBeingEdited) ? 'Reset' : 'Complete'}</Text>
-          </TouchableOpacity>
+          <View style={styles.descActions}>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(taskBeingEdited)}>
+              <Text>Delete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(taskBeingEdited)}>
+              <Text>{taskBeingEdited && getTaskCompelted(taskBeingEdited) ? 'Undo' : 'Complete'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
 
@@ -596,8 +585,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addTaskImage: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
   },
   taskContainer: {
     flexDirection: 'row',
@@ -645,6 +634,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
+    marginLeft: 100,
   },
   mapContainer: {
     flex: 1,
@@ -661,6 +651,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: 'rgba(0, 0, 0, 0)',
     padding: 10,
+  },
+  descActions: {
+    flexDirection: 'row',
+    marginTop: 20,
   },
   saveButton: {
     backgroundColor: '#007BFF',
