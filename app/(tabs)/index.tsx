@@ -20,6 +20,7 @@ type Task = {
   name: string;
   completed: boolean;
   location: { latitude: number; longitude: number } | null;
+  address: string | null;
   notified: boolean;
   description: string | null;
 };
@@ -35,7 +36,7 @@ const TaskMap = () => {
   const [locMenuVisible, setLocMenuVisible] = useState(false);
   const [descMenuVisible, setDescMenuVisible] = useState(false);
   const [favoriteLocations, setFavoriteLocations] = useState<
-    { name: string; location: { latitude: number; longitude: number } }[]
+    { name: string; location: { latitude: number; longitude: number }; address: string; }[]
   >([]);
   const [favoritesListVisible, setFavoritesListVisible] = useState(false);
   const [showCheckMark, setShowCheckMark] = useState(false);
@@ -209,6 +210,25 @@ const TaskMap = () => {
           : item
       )
     );
+
+    // Save address value to the task
+    if(selectedLocation){
+      (async () => {
+        try {
+          const address = await Location.reverseGeocodeAsync(selectedLocation);
+          console.debug('Address:', address[0].formattedAddress);
+          setTasks(
+            tasks.map((item) =>
+              item.id === taskBeingEdited
+                ? { ...item, address: address[0].formattedAddress }
+                : item
+            )
+          );
+        } catch (error) {
+          console.error('Failed to save address:', error);
+        }
+      })();
+    }
     
     setLocMenuVisible(false);
     if(mapVisible){
@@ -220,7 +240,7 @@ const TaskMap = () => {
   const addTask = () => {
     if (task.trim()) {
       setTasks([...tasks, { id: Date.now().toString(), name: task, completed: false, location: null, 
-                            notified: false, description: null }]);
+                            notified: false, description: null, address: null }]);
       setTask('');
     }
   };
@@ -253,11 +273,11 @@ const TaskMap = () => {
 
   const getTaskLocation = (id: string) => {
     const task = tasks.find((item) => item.id === id);
-    if (task && task.location) {
-      if (favoriteLocations.find((item) => item.location.latitude === task.location?.latitude && item.location.longitude === task.location?.longitude)) {
-        return favoriteLocations.find((item) => item.location.latitude === task.location?.latitude && item.location.longitude === task.location?.longitude)?.name;
+    if (task && task.address) {
+      if (favoriteLocations.find((item) => item.address === task.address)) {
+        return favoriteLocations.find((item) => item.address === task.address)?.name;
       }
-      return `${task.location.latitude.toFixed(5)}, ${task.location.longitude.toFixed(5)}`;
+      return task.address;
     }
     return 'No location set';
   };
@@ -266,11 +286,11 @@ const TaskMap = () => {
     setFavoritesListVisible(true);
   };
 
-  const handleFavoriteSelect = (location: { latitude: number; longitude: number }) => {
+  const handleFavoriteSelect = (location: { latitude: number; longitude: number }, address: string) => {
     setTasks(
       tasks.map((item) =>
         item.id === taskBeingEdited
-          ? { ...item, location: location }
+          ? { ...item, location: location, address: address}
           : item
       )
     );
@@ -346,7 +366,7 @@ const TaskMap = () => {
               >
                 {item.name}
               </Text>
-              {item.location && (
+              {item.address && (
                 <Text style={[
                   styles.locationText,
                   item.completed && styles.taskCompleted
@@ -457,10 +477,10 @@ const TaskMap = () => {
               <TouchableOpacity
                 key={index}
                 style={styles.favoriteItem}
-                onPress={() => handleFavoriteSelect(favorite.location)}
+                onPress={() => handleFavoriteSelect(favorite.location, favorite.address)}
               >
                 <Text style={styles.favoriteItemText}>
-                  {index + 1}. {favorite.name} - ({favorite.location.latitude.toFixed(4)}, {favorite.location.longitude.toFixed(4)})
+                  {index + 1}. {favorite.name} - ({favorite.address})
                 </Text>
               </TouchableOpacity>
             ))}
@@ -636,6 +656,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
     marginTop: 5,
+    maxWidth: 200,
   },
   deleteButton: {
     backgroundColor: '#ff4444',

@@ -21,7 +21,7 @@ const MapPage = () => {
   const [favoritesListVisible, setFavoritesListVisible] = useState(false);
   const [favoriteName, setFavoriteName] = useState('');
   const [favoriteLocations, setFavoriteLocations] = useState<
-    { name: string; location: { latitude: number; longitude: number } }[]
+    { name: string; location: { latitude: number; longitude: number }, address: string | null }[]
   >([]);
 
   // Load favorite locations from AsyncStorage on startup
@@ -91,10 +91,21 @@ const MapPage = () => {
       return;
     }
 
-    setFavoriteLocations([
-      ...favoriteLocations,
-      { name: favoriteName.trim(), location: selectedLocation! },
-    ]);
+    //try set location to address
+    if(selectedLocation){
+      (async () => {
+        try {
+          const address = await Location.reverseGeocodeAsync(selectedLocation);
+          console.debug('Address:', address[0].formattedAddress);
+          setFavoriteLocations([
+            ...favoriteLocations,
+            { name: favoriteName.trim(), location: selectedLocation!, address: address[0].formattedAddress },
+          ]);
+        } catch (error) {
+          console.error('Failed to save address:', error);
+        }
+      })();
+    }
 
     Alert.alert('Location Saved', `Saved as "${favoriteName.trim()}"`);
     setFavoriteName('');
@@ -189,7 +200,7 @@ const MapPage = () => {
             {favoriteLocations.map((favorite, index) => (
               <View key={index} style={styles.favoriteItemContainer}>
                 <Text style={styles.favoriteItem}>
-                  {index + 1}. {favorite.name} - ({favorite.location.latitude.toFixed(4)}, {favorite.location.longitude.toFixed(4)})
+                  {index + 1}. {favorite.name} - ({favorite.address})
                 </Text>
                 <TouchableOpacity
                   style={styles.deleteButton}
