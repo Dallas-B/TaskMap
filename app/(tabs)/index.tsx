@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image, Keyboard } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Modal, Image, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
@@ -407,85 +407,124 @@ const TaskMap = () => {
       />
 
       {/* Description Modal */}
-      <Modal visible={descMenuVisible} animationType="slide">
-          <TouchableOpacity style={styles.menuNav} onPress={() => setDescMenuVisible(false)}>
-            <Image source={require('@/assets/images/angle-left.png')} style={styles.locationButton} />
-            <Text style={styles.backButtonText}>Home</Text>
-          </TouchableOpacity>
-        <View style={styles.fullScreenMenu}>
-          <Text style={styles.cardMenuTitle}>{taskBeingEdited && getTaskName(taskBeingEdited)}</Text>
-          <Text style={styles.cardMenuText}>Location: {getTaskLocation(taskBeingEdited || '')}</Text>
-          <TextInput
-            style={styles.descInput}
-            placeholder="Add description"
-            value={taskBeingEdited && tasks.find((item) => item.id === taskBeingEdited)?.description || ''}
-            onChangeText={setDesc}
-            multiline
-          />
-          {showCheckMark && (
-            <Image source={require('@/assets/images/check-mark.png')} style={styles.checkMark} />
-          )}
-          <View style={styles.descActions}>
-            <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(taskBeingEdited)}>
-              <Text>Delete</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(taskBeingEdited)}>
-              <Text>{taskBeingEdited && getTaskCompelted(taskBeingEdited) ? 'Undo' : 'Complete'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.completeButton} onPress={(saveDescription)}>
-                <Text>Save</Text>
-            </TouchableOpacity>
+      <Modal visible={descMenuVisible} transparent={true} animationType="slide" onRequestClose={() => setDescMenuVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setDescMenuVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.cardMenu}>
+                <TouchableOpacity style={styles.closeButton} onPress={() => setDescMenuVisible(false)}>
+                  <Text style={styles.saveButtonText}>❌</Text>
+                </TouchableOpacity>
+                <Text style={styles.cardMenuTitle}>{taskBeingEdited && getTaskName(taskBeingEdited)}</Text>
+                <Text style={styles.cardMenuText}>Location: {getTaskLocation(taskBeingEdited || '')}</Text>
+                <TextInput
+                  style={styles.descInput}
+                  placeholder="Add description"
+                  value={taskBeingEdited && tasks.find((item) => item.id === taskBeingEdited)?.description || ''}
+                  onChangeText={setDesc}
+                  multiline={true}
+                  textAlignVertical='top'
+                />
+                {showCheckMark && (
+                  <Image source={require('@/assets/images/check-mark.png')} style={styles.checkMark} />
+                )}
+                <View style={styles.descActions}>
+                  <TouchableOpacity style={styles.deleteButton} onPress={() => taskBeingEdited && deleteTask(taskBeingEdited)}>
+                    <Text>Delete</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.completeButton} onPress={() => taskBeingEdited && completeTask(taskBeingEdited)}>
+                    <Text>{taskBeingEdited && getTaskCompelted(taskBeingEdited) ? 'Undo' : 'Complete'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.completeButton} onPress={(saveDescription)}>
+                      <Text>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       {/* Location Selection Modal */}
-      <Modal visible={locMenuVisible} transparent={true} animationType="slide">
-        <View style={styles.cardMenu}>
-          <Text style={styles.cardMenuTitle}>Select Location</Text>
-          <TouchableOpacity style={styles.cardMenuButton} onPress={() => { setSelectedLocation(userLocation); saveLocation(); }}>
-            <Text style={styles.cardMenuText}>Current Location</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cardMenuButton} onPress={() => openFavoriteModal()}>
-            <Text style={styles.cardMenuText}>Favorite Locations</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cardMenuButton} onPress={() => openMap()}>
-            <Text style={styles.cardMenuText}>Open Map</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.closeButton} onPress={() => setLocMenuVisible(false)}>
-            <Text style={styles.saveButtonText}>❌</Text>
-          </TouchableOpacity>
+      <Modal
+      visible={locMenuVisible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={() => setLocMenuVisible(false)}
+    >
+      <TouchableWithoutFeedback onPress={() => setLocMenuVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback>
+            {/* Modal content */}
+            <View style={styles.cardMenu}>
+              <Text style={styles.cardMenuTitle}>Select Location</Text>
+              <TouchableOpacity
+                style={styles.cardMenuButton}
+                onPress={() => {
+                  setSelectedLocation(userLocation);
+                  saveLocation();
+                }}
+              >
+                <Text style={styles.cardMenuText}>Current Location</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cardMenuButton}
+                onPress={() => openFavoriteModal()}
+              >
+                <Text style={styles.cardMenuText}>Favorite Locations</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cardMenuButton}
+                onPress={() => openMap()}
+              >
+                <Text style={styles.cardMenuText}>Open Map</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setLocMenuVisible(false)}
+              >
+                <Text style={styles.saveButtonText}>❌</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </Modal>
+      </TouchableWithoutFeedback>
+    </Modal>
 
       {/* Favorite Locations Modal */}
-      <Modal visible={favoritesListVisible} animationType="slide" transparent>
-        <View style={styles.favoriteModal}>
-          <Text style={styles.cardMenuTitle}>Favorite Locations</Text>
-          <ScrollView style={styles.favoriteList}>
-            {favoriteLocations.map((favorite, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.favoriteItem}
-                onPress={() => handleFavoriteSelect(favorite.location, favorite.address)}
-              >
-                <Text style={styles.favoriteItemText}>
-                  {index + 1}. {favorite.name} - ({favorite.address})
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => setFavoritesListVisible(false)}
-          >
-            <Text style={styles.cancelButtonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
+      <Modal visible={favoritesListVisible} animationType="slide" transparent onRequestClose={() => setFavoritesListVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setFavoritesListVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.favoriteModal}>
+                <Text style={styles.cardMenuTitle}>Favorite Locations</Text>
+                <ScrollView style={styles.favoriteList}>
+                  {favoriteLocations.map((favorite, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.favoriteItem}
+                      onPress={() => handleFavoriteSelect(favorite.location, favorite.address)}
+                    >
+                      <Text style={styles.favoriteItemText}>
+                        {index + 1}. {favorite.name} - ({favorite.address})
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setFavoritesListVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       {/* Map Modal */}
-      <Modal visible={mapVisible} animationType="slide">
+      <Modal visible={mapVisible} animationType="slide" onRequestClose={() => setMapVisible(false)}>
         <View style={styles.mapContainer}>
           <MapView
             style={styles.map}
@@ -526,6 +565,10 @@ const TaskMap = () => {
 };
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+  },
   menuNav: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -546,12 +589,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     backgroundColor: Colors.standard.Beige,
-    wordWrap: 'break-word',
+    fontSize: 16,
+    lineHeight: 20
   },
   cardMenu: {
-    marginTop: 200,
-    margin: 40,
     backgroundColor: Colors.standard.Beige,
+    marginTop: 50,
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
@@ -563,6 +606,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 5,
+    maxHeight: '90%'
   },
   cardMenuTitle: {
     fontSize: 20,
